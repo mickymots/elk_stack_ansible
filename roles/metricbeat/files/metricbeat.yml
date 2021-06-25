@@ -1,0 +1,102 @@
+# Configure Autodiscover for container so that Metricbeat can track them
+
+metricbeat.autodiscover:
+  providers:
+    - type: docker
+      hints.enabled: true
+
+
+# Configure Modules that are tracked by Metricbeat
+
+metricbeat.modules:
+
+# System module to track Host System metrics
+- module: system
+  metricsets:
+    - cpu             # CPU usage
+    - load            # CPU load averages
+    - memory          # Memory usage
+    - network         # Network IO
+    - process         # Per process metrics
+    - process_summary # Process summary
+    - uptime          # System Uptime
+    - socket_summary  # Socket summary
+    #- core           # Per CPU core usage
+    #- diskio         # Disk IO
+    #- filesystem     # File system usage for each mountpoint
+    #- fsstat         # File system summary metrics
+    #- raid           # Raid
+    - socket         # Sockets and connection info (linux only)
+    - service        # systemd service information
+  enabled: true
+  period: 10s
+  processes: ['.*']
+
+  # Configure the metric types that are included by these metricsets.
+  cpu.metrics:  ["percentages","normalized_percentages"]  # The other available option is ticks.
+  core.metrics: ["percentages"]
+
+# Docker Module to track docker containers running on the host
+- module: docker
+  metricsets:
+    - "container"
+    - "cpu"
+    - "diskio"
+    - "event"
+    - "healthcheck"
+    - "info"
+    - "image"
+    - "memory"
+    - "network"
+  hosts: ["unix:///var/run/docker.sock"]
+  period: 10s
+  enabled: true
+
+
+
+# output plugin to send metric data to Elasticsearch
+
+output.elasticsearch:
+  hosts: ["${ES_HOST}" ]
+  username: "elastic"
+  password: "${ES_PWD}" 
+  ssl.certificate_authorities: "ca.crt"
+
+
+
+# Setup In-built Kibana Dashboards for Metricbeat
+
+setup.kibana.host: "${KIBANA_HOST}"
+setup.kibana.ssl.enabled: true
+setup.kibana.ssl.certificate_authorities: "ca.crt"
+setup.dashboards.enabled: true
+
+setup.template.enabled: true
+setup.template.overwrite: true
+setup.template.settings:
+  index.number_of_shards: 1
+  index.number_of_replicas: 0
+
+# ILM Config
+
+setup.ilm.enabled: true
+setup.ilm.rollover_alias: "metricbeat"
+setup.ilm.pattern: "{now/d}-000001"
+
+
+# logging config
+
+logging.level: info
+logging.to_files: true
+logging.files:
+  path: /var/log/metricbeat
+  name: metricbeat
+  keepfiles: 7
+  permissions: 0644
+
+
+
+queue.mem:
+  events: 4096
+  flush.min_events: 512
+  flush.timeout: 10s

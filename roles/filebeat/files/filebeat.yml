@@ -1,0 +1,48 @@
+filebeat.inputs:
+- type: container
+  paths: 
+    - '/var/lib/docker/containers/*/*.log'
+
+processors:
+- add_docker_metadata:
+    host: "unix:///var/run/docker.sock"
+
+- decode_json_fields:
+    fields: ["message"]
+    target: "json"
+    overwrite_keys: true
+
+output.elasticsearch:
+  hosts: ["${ES_HOST}" ]
+  username: "elastic"
+  password: "${ES_PWD}" 
+  indices:
+    - index: "filebeat-%{[agent.version]}-%{+yyyy.MM}"
+  ssl.certificate_authorities: "ca.crt"
+
+
+setup.kibana.host: "${KIBANA_HOST}"
+
+
+# ----------------------------------------------------- #
+    # Sample Config
+
+# ----------------------------------------------------- #
+
+# output.elasticsearch:
+#   hosts: ["{{ES_HOST}}"]
+#   username: "elastic"
+#   password: "${ES_PWD}" 
+#   ssl.certificate_authorities: ca.crt
+
+
+# setup.kibana:
+#     host: "{{KIBANA_HOST}}"
+#     username: "elastic"  
+#     password: "${ES_PWD}" 
+
+
+# filebeat.inputs:
+# - type: log
+#   paths:
+#     - /var/log/syslog

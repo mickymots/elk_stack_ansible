@@ -1,0 +1,54 @@
+---
+# - name: "Create ELK stack root directory if it does not exist"
+#   become: yes
+#   become_user: root
+#   ansible.builtin.file:
+#     path: "{{ ES_HOME }}"
+#     state: directory
+#     mode: '0755'
+
+# - name: "Create {{ DEPLOYMENT }} directory if it does not exist"
+#   become: yes
+#   become_user: root
+#   ansible.builtin.file:
+#     path: "{{ DEPLOYMENT_HOME }}"
+#     state: directory
+#     mode: '0755'
+
+# - name: Download {{ DEPLOYMENT }} installation archive
+#   become: yes
+#   become_user: root
+#   get_url:
+#     url: "{{ DEPLOYMENT_ARTIFACT }}"
+#     dest: "{{ DEPLOYMENT_HOME }}/{{DEPLOYMENT}}.tar.gz"
+#     validate_certs: no
+#     force: yes
+
+# - name: Unarchive {{ DEPLOYMENT }} installation archive
+#   become: yes
+#   become_user: root
+#   unarchive:
+#     src: "{{ DEPLOYMENT_HOME }}/{{DEPLOYMENT}}.tar.gz"
+#     dest: "{{ DEPLOYMENT_HOME }}"
+#     remote_src: yes
+#     extra_opts: [--strip-components=1]
+
+# - name: Remove {{ DEPLOYMENT }} installation archive
+#   become: yes
+#   become_user: root
+#   ansible.builtin.file:
+#     path: "{{ DEPLOYMENT_HOME }}/{{DEPLOYMENT}}.tar.gz"
+#     state: absent
+
+- name: Create {{DEPLOYMENT}} Keystore
+  command: chdir={{ DEPLOYMENT_HOME }}  pwd
+  register: output
+
+- name: show current pwd
+  debug:
+    msg: "{{output.stdout}}"
+
+- name: Add self signed certs to local jks
+  become: yes
+  become_user: root
+  command: "{{ DEPLOYMENT_HOME }}/bin/elasticsearch "

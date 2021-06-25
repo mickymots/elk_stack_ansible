@@ -1,0 +1,22 @@
+# name of the deployment - referred in the playbook
+DEPLOYMENT: filebeat
+
+
+#ELk Stack root deployment directory
+ES_HOME: /opt/elk
+
+
+#filebeat root deployment directory
+DEPLOYMENT_HOME: "{{ ES_HOME }}/{{ DEPLOYMENT}}"
+
+
+# Backup Directory
+BACKUP_HOME: "{{ES_HOME}}/backup"
+
+
+# Artifact download url
+
+DEPLOYMENT_ARTIFACT: https://artifacts.elastic.co/downloads/beats/{{DEPLOYMENT}}/{{DEPLOYMENT}}-{{ELK_VERSION}}-linux-x86_64.tar.gz
+
+# ES_PWD: changeme
+# KIBANA_PWD: changeme

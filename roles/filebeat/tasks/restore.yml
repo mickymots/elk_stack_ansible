@@ -1,0 +1,37 @@
+---
+- name: running restore tasks
+  ansible.builtin.debug:
+      msg: 'Restore previous  {{DEPLOYMENT}} deployment'     
+
+- name: Create root backup directory if it does not exist
+  become: yes
+  become_user: root
+  ansible.builtin.file:
+    path: "{{BACKUP_HOME}}"
+    state: directory
+    mode: '0755'
+
+- name: Create failed_log directory if it does not exist
+  become: yes
+  become_user: root
+  ansible.builtin.file:
+    path: "{{BACKUP_HOME}}/FAIL_{{DEPLOYMENT}}_{{ansible_date_time.date}}_{{ansible_date_time.time}}"
+    state: directory
+    mode: '0755'
+
+
+- name: Copy current "{{DEPLOYMENT}}" deployment
+  become: yes
+  become_user: root
+  ansible.builtin.copy:
+    src: "{{DEPLOYMENT_HOME}}/"
+    dest: "{{BACKUP_HOME}}/FAIL_{{DEPLOYMENT}}_{{ansible_date_time.date}}_{{ansible_date_time.time}}/"
+    remote_src: yes
+
+- name: Restore original "{{DEPLOYMENT}}" deployment from the backup
+  become: yes
+  become_user: root
+  ansible.builtin.copy:
+    dest: "{{DEPLOYMENT_HOME}}/"
+    src: "{{BACKUP_HOME}}/{{DEPLOYMENT}}_{{ansible_date_time.date}}_{{ansible_date_time.time}}/"
+    remote_src: yes

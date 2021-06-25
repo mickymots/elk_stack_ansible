@@ -1,0 +1,82 @@
+---
+- name: "Create ELK stack root directory if it does not exist"
+  become: yes
+  become_user: root
+  ansible.builtin.file:
+    path: "{{ ES_HOME }}"
+    state: directory
+    mode: '0755'
+
+- name: "Create {{ DEPLOYMENT }} directory if it does not exist"
+  become: yes
+  become_user: root
+  ansible.builtin.file:
+    path: "{{ DEPLOYMENT_HOME }}"
+    state: directory
+    mode: '0755'
+
+- name: Download {{ DEPLOYMENT }} installation archive
+  get_url:
+    url: "{{ DEPLOYMENT_ARTIFACT }}"
+    dest: "{{ DEPLOYMENT_HOME }}/{{DEPLOYMENT}}.tar.gz"
+    validate_certs: no
+    force: yes
+
+- name: Unarchive {{ DEPLOYMENT }} installation archive
+  unarchive:
+    src: "{{ DEPLOYMENT_HOME }}/{{DEPLOYMENT}}.tar.gz"
+    dest: "{{ DEPLOYMENT_HOME }}"
+    remote_src: yes
+    extra_opts: [--strip-components=1]
+
+- name: Remove {{ DEPLOYMENT }} installation archive
+  ansible.builtin.file:
+    path: "{{ DEPLOYMENT_HOME }}/{{DEPLOYMENT}}.tar.gz"
+    state: absent
+
+
+- name: Create {{DEPLOYMENT}} Keystore
+  command: "{{ DEPLOYMENT_HOME }}/{{DEPLOYMENT}} keystore create --force"
+  args:
+    chdir: "{{ DEPLOYMENT_HOME }}"
+
+
+- name: Add Elasticsearch Password to Keystore
+  command: "{{ DEPLOYMENT_HOME }}/{{DEPLOYMENT}} keystore add ES_PWD --stdin --force"
+  args:
+    chdir: "{{ DEPLOYMENT_HOME }}"
+    stdin: "{{ ES_PWD }}"
+
+
+- name: Add Elasticsearch Host to Keystore
+  command: "{{ DEPLOYMENT_HOME }}/{{DEPLOYMENT}} keystore add ES_HOST --stdin --force"
+  args:
+    chdir: "{{ DEPLOYMENT_HOME }}"
+    stdin: "{{ ES_HOST }}"
+
+
+- name: Add Kibana Host to Keystore
+  command: "{{ DEPLOYMENT_HOME }}/{{DEPLOYMENT}} keystore add KIBANA_HOST --stdin --force"
+  args:
+    chdir: "{{ DEPLOYMENT_HOME }}"
+    stdin: "{{ KIBANA_HOST }}"
+
+
+- name: Copy {{DEPLOYMENT}} yml
+  ansible.builtin.template:
+    src: files/{{DEPLOYMENT}}.yml
+    dest: "{{ DEPLOYMENT_HOME }}/{{ DEPLOYMENT}}.yml"
+    mode: '0644'
+
+- name: Copy certificate file
+  ansible.builtin.copy:
+    src: files/ca.crt
+    dest: "{{ DEPLOYMENT_HOME }}/ca.crt"
+    mode: '0664'
+
+
+- name: Start {{DEPLOYMENT}}
+  shell: nohup {{ DEPLOYMENT_HOME }}/metricbeat -e </dev/null >/dev/null 2>&1 &
+  args:
+    chdir: "{{ DEPLOYMENT_HOME }}" 
+  

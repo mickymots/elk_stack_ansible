@@ -1,0 +1,11 @@
+---
+
+- name: Client Setup
+  hosts: client_nodes
+  remote_user: root
+  become: yes
+  vars:
+    ELK_VERSION: 7.11.1
+  # connection: local
+  roles:
+    - role: "{{role}}"

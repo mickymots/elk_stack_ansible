@@ -1,0 +1,32 @@
+---
+- name: running back-up tasks
+  debug:
+    msg: "Creating backup directory: "
+
+
+- name: Create root backup directory if it does not exist
+  become: yes
+  become_user: root
+  ansible.builtin.file:
+    path: "{{BACKUP_HOME}}"
+    state: directory
+    mode: '0755'
+
+
+- name: Create backup directory if it does not exist
+  become: yes
+  become_user: root
+  ansible.builtin.file:
+    path: "{{BACKUP_HOME}}/{{DEPLOYMENT}}_{{ansible_date_time.date}}_{{ansible_date_time.time}}"
+    state: directory
+    mode: '0755'
+
+
+- name: Copy current "{{DEPLOYMENT}}" deployment
+  become: yes
+  become_user: root
+  ansible.builtin.copy:
+    src: "{{DEPLOYMENT_HOME}}/"
+    dest: "{{BACKUP_HOME}}/{{DEPLOYMENT}}_{{ansible_date_time.date}}_{{ansible_date_time.time}}/"
+    remote_src: yes
+   

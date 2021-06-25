@@ -1,0 +1,19 @@
+# name of the deployment - referred in the playbook
+DEPLOYMENT: elasticsearch
+
+
+#ELk Stack root deployment directory
+ES_HOME: /opt/elk
+
+
+#filebeat root deployment directory
+DEPLOYMENT_HOME: "{{ ES_HOME }}/{{ DEPLOYMENT}}"
+
+
+# Backup Directory
+BACKUP_HOME: "{{ES_HOME}}/backup"
+
+
+# Artifact download url
+
+DEPLOYMENT_ARTIFACT: https://artifacts.elastic.co/downloads/{{DEPLOYMENT}}/{{DEPLOYMENT}}-{{ELK_VERSION}}-linux-x86_64.tar.gz
