@@ -1,0 +1,32 @@
+---
+- name: Ansible fact - ansible_date_time
+  set_fact:
+    run_time: ansible_date_time
+
+
+# - name: check if {{DEPLOYMENT}} deployment exists
+#   ansible.builtin.stat:
+#     path: "{{ DEPLOYMENT_HOME }}"
+#   register: deployment_stat
+
+# - name: Create a backup copy of the current deployment directory incase something goes wrong.
+#   import_tasks: backup.yml
+#   when: deployment_stat.stat.exists
+
+
+- name: Install, Configure and Start the {{DEPLOYMENT}} Service
+  block:
+    - name: "Create ELK stack root directory if it does not exist"
+      import_tasks: install.yml
+
+  # rescue:
+  #    - name: Restore the previous  {{DEPLOYMENT}}  deploymet
+  #      import_tasks: restore.yml
+   
+
+  always:
+    - name: Print {{ DEPLOYMENT }} deployment confirmation
+      ansible.builtin.debug:
+        msg: "{{DEPLOYMENT}} version {{ELK_VERSION}} has finished."
+
+

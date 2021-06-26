@@ -1,21 +1,21 @@
 ---
-- name: Check ES status
+- name: Check {{DEPLOYMENT}} status
   uri:
-    url: "https://localhost:9200"
+    url: "http://localhost:5601"
     user: elastic
     password: "{{ES_PWD}}"
     follow_redirects: none
     method: GET
-    validate_certs: no
+    # validate_certs: no
   register: _result
   ignore_errors: yes
  
 
-- name: Stop ES if Running
-  shell: |
-    cat "{{DEPLOYMENT_HOME}}/pid" | xargs kill -9
-  when:  _result.status == 200
-  ignore_errors: yes
+# - name: Stop {{DEPLOYMENT}} if Running
+#   shell: |
+#     cat "{{DEPLOYMENT_HOME}}/pid" | xargs kill -9
+#   when:  _result.status == 200
+#   ignore_errors: yes
 
 
 - name: "Create ELK stack root directory if it does not exist"
@@ -92,11 +92,17 @@
     responses:
       '[y/N]': y
     
+- name: Add Elasticsearch username to Keystore
+  become: yes
+  become_user: ubuntu
+  command: "{{ DEPLOYMENT_HOME }}/bin/{{DEPLOYMENT}}-keystore add 'elasticsearch.username' --stdin"
+  args:
+    stdin: elastic
 
 - name: Add Elasticsearch Password to Keystore
   become: yes
   become_user: ubuntu
-  command: "{{ DEPLOYMENT_HOME }}/bin/{{DEPLOYMENT}}-keystore add 'bootstrap.password' --stdin"
+  command: "{{ DEPLOYMENT_HOME }}/bin/{{DEPLOYMENT}}-keystore add 'elasticsearch.password' --stdin"
   args:
     stdin: "{{ES_PWD}}"
 
@@ -144,35 +150,23 @@
     mode: '0750'
 
 
-- name: Start Elasticsearch
+- name: Start {{DEPLOYMENT}}
   become: yes
   become_user: ubuntu
-  shell: nohup {{ DEPLOYMENT_HOME }}/start.sh
+  shell: "{{ DEPLOYMENT_HOME }}/start.sh"
  
 
-- name: check if the ES came up 
+- name: check if the {{DEPLOYMENT}} came up 
   uri:
-    url: "https://localhost:9200"
+    url: "http://localhost:5601"
     user: elastic
     password: "{{ES_PWD}}"
-    follow_redirects: none
+    follow_redirects: safe
     method: GET
-    validate_certs: no
   register: _result
   until: _result.status == 200
   retries: 12 # 12 * 5 seconds = 1min 
   delay: 5 # Every 5 seconds
 
 
-- name: set new password 
-  uri:
-    url: https://localhost:9200/_security/user/elastic/_password
-    user: elastic
-    password: "{{ES_PWD}}"
-    method: POST
-    validate_certs: no
-    body: '{"password": "{{ ES_PWD }}"}'
-    force_basic_auth: yes
-    status_code: 200
-    body_format: json
 
