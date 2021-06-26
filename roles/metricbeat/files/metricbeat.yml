@@ -1,9 +1,9 @@
 # Configure Autodiscover for container so that Metricbeat can track them
 
-metricbeat.autodiscover:
-  providers:
-    - type: docker
-      hints.enabled: true
+# metricbeat.autodiscover:
+#   providers:
+#     - type: docker
+#       hints.enabled: true
 
 
 # Configure Modules that are tracked by Metricbeat
@@ -66,11 +66,19 @@ metricbeat.modules:
   username: "elastic"
   password: "${ES_PWD}" 
   ssl.certificate_authorities: ["/opt/elk/metricbeat/ca.crt"]
-
   #index_recovery.active_only: true
-  #xpack.enabled: false
+  xpack.enabled: true
   #scope: node
 
+
+- module: kibana
+  xpack.enabled: true
+  period: 10s
+  hosts: ["https://localhost:5601"]
+  #basepath: ""
+  username: "elastic"
+  password: "${ES_PWD}" 
+  ssl.certificate_authorities: ["/opt/elk/metricbeat/ca.crt"]
 
 
 
@@ -86,7 +94,7 @@ output.elasticsearch:
 
 # Setup In-built Kibana Dashboards for Metricbeat
 
-setup.kibana.host: "${KIBANA_HOST}"
+setup.kibana.host:  ["https://localhost:5601"]
 setup.kibana.ssl.enabled: true
 setup.kibana.ssl.certificate_authorities: "ca.crt"
 setup.dashboards.enabled: true
@@ -110,8 +118,8 @@ logging.level: info
 logging.to_files: true
 logging.files:
   path: /var/log/metricbeat
-  name: metricbeat
-  keepfiles: 7
+  name: metricbeat.log
+  keepfiles: 3
   permissions: 0644
 
 

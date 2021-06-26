@@ -1,12 +1,12 @@
 ---
 - name: Check {{DEPLOYMENT}} status
   uri:
-    url: "http://localhost:5601"
+    url: "https://localhost:5601"
     user: elastic
     password: "{{ES_PWD}}"
     follow_redirects: none
     method: GET
-    # validate_certs: no
+    validate_certs: no
   register: _result
   ignore_errors: yes
  
@@ -158,13 +158,14 @@
 
 - name: check if the {{DEPLOYMENT}} came up 
   uri:
-    url: "http://localhost:5601"
+    url: "https://localhost:5601"
     user: elastic
     password: "{{ES_PWD}}"
     follow_redirects: safe
     method: GET
+    validate_certs: no
   register: _result
-  until: _result.status == 200
+  until: _result.status == 201
   retries: 12 # 12 * 5 seconds = 1min 
   delay: 5 # Every 5 seconds
 

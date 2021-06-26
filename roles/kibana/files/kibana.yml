@@ -1,8 +1,16 @@
 ---
 path.data: "{{DEPLOYMENT_HOME}}/config"
+server.host: "0.0.0.0"
+
 elasticsearch.hosts:
   - "https://localhost:9200"
 
-elasticsearch.ssl.verificationMode: none
+elasticsearch.ssl:
+  certificateAuthorities: "{{DEPLOYMENT_HOME}}/config/ca.crt"
+  verificationMode: certificate
 
-server.host: "0.0.0.0"
+
+server.ssl:
+  certificate: "{{DEPLOYMENT_HOME}}/config/es01.crt"
+  key: "{{DEPLOYMENT_HOME}}/config/es01.key"
+  certificateAuthorities: "{{DEPLOYMENT_HOME}}/config/ca.crt"
