@@ -5,6 +5,9 @@ This is an ansible project for deployment of ELK Stack, Elasticsearch, Kibana, L
 ## Pre requisite 
 
 *   Setup ansible vault password at location:  ~/.ansible_vault
+*   Create Certificates for ELK server and Kiaban and place the crt and key files in 'files' directory. For simplicity, use elasticsearch cert utility:
+    https://www.elastic.co/guide/en/elasticsearch/reference/7.13/certutil.html
+    
 
 
 ## Steps to use this project
