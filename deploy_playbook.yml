@@ -3,7 +3,6 @@
 - name: Client Setup
   hosts: client_nodes
   remote_user: ubuntu
-  # debugger: always
   become: yes
   vars:
     ELK_VERSION: 7.13.2
