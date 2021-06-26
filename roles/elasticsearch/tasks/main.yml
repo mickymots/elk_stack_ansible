@@ -24,9 +24,9 @@
   #      import_tasks: restore.yml
    
 
-  # always:
-  #   - name: Print {{ DEPLOYMENT }} deployment confirmation
-  #     ansible.builtin.debug:
-  #       msg: "{{DEPLOYMENT}} version {{ELK_VERSION}} has finished."
+  always:
+    - name: Print {{ DEPLOYMENT }} deployment confirmation
+      ansible.builtin.debug:
+        msg: "{{DEPLOYMENT}} version {{ELK_VERSION}} has finished."
 
 

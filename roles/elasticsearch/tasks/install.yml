@@ -5,19 +5,31 @@
 #   ansible.builtin.file:
 #     path: "{{ ES_HOME }}"
 #     state: directory
+#     group: ubuntu
+#     owner: ubuntu
 #     mode: '0755'
 
 # - name: "Create {{ DEPLOYMENT }} directory if it does not exist"
 #   become: yes
-#   become_user: root
+#   become_user: ubuntu
 #   ansible.builtin.file:
 #     path: "{{ DEPLOYMENT_HOME }}"
 #     state: directory
 #     mode: '0755'
 
-# - name: Download {{ DEPLOYMENT }} installation archive
+# - name: "Create {{ DEPLOYMENT }} log directory if it does not exist"
 #   become: yes
 #   become_user: root
+#   ansible.builtin.file:
+#     path: "/var/log/{{ DEPLOYMENT }}"
+#     state: directory
+#     group: ubuntu
+#     owner: ubuntu
+#     mode: '0755'
+
+# - name: Download {{ DEPLOYMENT }} installation archive
+#   become: yes
+#   become_user: ubuntu
 #   get_url:
 #     url: "{{ DEPLOYMENT_ARTIFACT }}"
 #     dest: "{{ DEPLOYMENT_HOME }}/{{DEPLOYMENT}}.tar.gz"
@@ -26,7 +38,7 @@
 
 # - name: Unarchive {{ DEPLOYMENT }} installation archive
 #   become: yes
-#   become_user: root
+#   become_user: ubuntu
 #   unarchive:
 #     src: "{{ DEPLOYMENT_HOME }}/{{DEPLOYMENT}}.tar.gz"
 #     dest: "{{ DEPLOYMENT_HOME }}"
@@ -35,20 +47,77 @@
 
 # - name: Remove {{ DEPLOYMENT }} installation archive
 #   become: yes
-#   become_user: root
+#   become_user: ubuntu
 #   ansible.builtin.file:
 #     path: "{{ DEPLOYMENT_HOME }}/{{DEPLOYMENT}}.tar.gz"
 #     state: absent
 
-- name: Create {{DEPLOYMENT}} Keystore
-  command: chdir={{ DEPLOYMENT_HOME }}  pwd
-  register: output
+# - name: Create {{DEPLOYMENT}} Keystore
+#   become: yes
+#   become_user: ubuntu
+#   command: "{{ DEPLOYMENT_HOME }}/bin/{{DEPLOYMENT}}-keystore create"
+  
 
-- name: show current pwd
-  debug:
-    msg: "{{output.stdout}}"
+# - name: rename current "{{DEPLOYMENT}}".yml 
+#   become: yes
+#   become_user: ubuntu
+#   ansible.builtin.copy:
+#     src: "{{DEPLOYMENT_HOME}}/config/{{DEPLOYMENT}}.yml"
+#     dest: "{{DEPLOYMENT_HOME}}/config/{{DEPLOYMENT}}.yml.ori"
+#     remote_src: yes
 
-- name: Add self signed certs to local jks
+# - name: Copy custom {{DEPLOYMENT}} yml
+#   become: yes
+#   become_user: ubuntu
+#   ansible.builtin.template:
+#     src: files/{{DEPLOYMENT}}.yml
+#     dest: "{{ DEPLOYMENT_HOME }}/config/{{ DEPLOYMENT}}.yml"
+#     mode: '0644'
+
+
+- name: Check ES status
+  uri:
+    url: "http://localhost:9200"
+    follow_redirects: none
+    method: GET
+  register: _result
+  # until: _result.status == 200
+  ignore_errors: yes
+
+- name: Stop ES if Running
+  shell: |
+    cat "{{DEPLOYMENT_HOME}}/pid" | xargs kill -9
+  when:  _result.status == 200
+  ignore_errors: yes
+
+
+- name: Copy start script for {{DEPLOYMENT}}
   become: yes
-  become_user: root
-  command: "{{ DEPLOYMENT_HOME }}/bin/elasticsearch "
+  become_user: ubuntu
+  ansible.builtin.template:
+    src: files/start.sh
+    dest: "{{ DEPLOYMENT_HOME }}/start.sh"
+    mode: '0755'
+
+# You can also use the 'args' form to provide the options.
+- name: Start Elasticsearch
+  become: yes
+  become_user: ubuntu
+  shell: nohup {{ DEPLOYMENT_HOME }}/start.sh
+ 
+
+- name: check if the ES came up 
+  uri:
+    url: "http://localhost:9200"
+    follow_redirects: none
+    method: GET
+  register: _result
+  until: _result.status == 200
+  retries: 12 # 12 * 5 seconds = 1min 
+  delay: 5 # Every 5 seconds
+
+
+# - name: Add self signed certs to local jks
+#   become: yes
+#   become_user: ubuntu
+#   command: "{{ DEPLOYMENT_HOME }}/bin/elasticsearch "

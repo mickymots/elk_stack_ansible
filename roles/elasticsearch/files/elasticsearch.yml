@@ -1,0 +1,10 @@
+path:
+    data: /home/ubuntu/elasticsearch/data
+    logs: /var/log/elasticsearch
+
+
+cluster.name: poc-cluster
+
+node.name: poc-node
+
+# network.host: 192.168.1.10usr/share

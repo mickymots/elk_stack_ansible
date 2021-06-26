@@ -1,0 +1,1 @@
+{{ DEPLOYMENT_HOME }}/bin/elasticsearch -d -p pid
