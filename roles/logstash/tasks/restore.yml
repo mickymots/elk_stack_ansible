@@ -1,0 +1,5 @@
+---
+- name: running restore tasks
+  ansible.builtin.debug:
+      msg: 'Restore previous  {{DEPLOYMENT}} deployment'     
+

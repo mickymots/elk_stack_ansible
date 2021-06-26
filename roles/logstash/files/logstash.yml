@@ -1,0 +1,15 @@
+---
+pipeline:
+  batch:
+    size: 125
+    delay: 50
+
+
+path.data: "{{DEPLOYMENT_HOME}}/data"
+
+
+config.reload.automatic: true
+config.reload.interval: 10s
+
+
+log.level: debug

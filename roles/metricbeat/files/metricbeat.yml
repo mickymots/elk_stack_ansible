@@ -37,20 +37,40 @@ metricbeat.modules:
   core.metrics: ["percentages"]
 
 # Docker Module to track docker containers running on the host
-- module: docker
+# - module: docker
+#   metricsets:
+#     - "container"
+#     - "cpu"
+#     - "diskio"
+#     - "event"
+#     - "healthcheck"
+#     - "info"
+#     - "image"
+#     - "memory"
+#     - "network"
+#   hosts: ["unix:///var/run/docker.sock"]
+#   period: 10s
+#   enabled: true
+
+- module: elasticsearch
   metricsets:
-    - "container"
-    - "cpu"
-    - "diskio"
-    - "event"
-    - "healthcheck"
-    - "info"
-    - "image"
-    - "memory"
-    - "network"
-  hosts: ["unix:///var/run/docker.sock"]
+    - node
+    - node_stats
+    - index
+    #- index_recovery
+    - index_summary
+    - shard
+    #- ml_job
   period: 10s
-  enabled: true
+  hosts: ["https://localhost:9200"]
+  username: "elastic"
+  password: "${ES_PWD}" 
+  ssl.certificate_authorities: ["/opt/elk/metricbeat/ca.crt"]
+
+  #index_recovery.active_only: true
+  #xpack.enabled: false
+  #scope: node
+
 
 
 

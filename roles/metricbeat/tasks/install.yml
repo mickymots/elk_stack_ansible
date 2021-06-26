@@ -1,18 +1,18 @@
 ---
 - name: "Create ELK stack root directory if it does not exist"
-  become: yes
-  become_user: root
   ansible.builtin.file:
     path: "{{ ES_HOME }}"
     state: directory
+    group: ubuntu
+    owner: ubuntu
     mode: '0755'
 
 - name: "Create {{ DEPLOYMENT }} directory if it does not exist"
-  become: yes
-  become_user: root
   ansible.builtin.file:
     path: "{{ DEPLOYMENT_HOME }}"
     state: directory
+    group: ubuntu
+    owner: ubuntu
     mode: '0755'
 
 - name: Download {{ DEPLOYMENT }} installation archive
@@ -33,6 +33,16 @@
   ansible.builtin.file:
     path: "{{ DEPLOYMENT_HOME }}/{{DEPLOYMENT}}.tar.gz"
     state: absent
+
+- name: "Create {{ DEPLOYMENT }} log directory if it does not exist"
+  become: yes
+  become_user: root
+  ansible.builtin.file:
+    path: "/var/log/{{ DEPLOYMENT }}"
+    state: directory
+    group: ubuntu
+    owner: ubuntu
+    mode: '0755'
 
 
 - name: Create {{DEPLOYMENT}} Keystore

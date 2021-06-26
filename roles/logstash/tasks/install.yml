@@ -1,23 +1,4 @@
 ---
-- name: Check {{DEPLOYMENT}} status
-  uri:
-    url: "http://localhost:5601"
-    user: elastic
-    password: "{{ES_PWD}}"
-    follow_redirects: none
-    method: GET
-    # validate_certs: no
-  register: _result
-  ignore_errors: yes
- 
-
-# - name: Stop {{DEPLOYMENT}} if Running
-#   shell: |
-#     cat "{{DEPLOYMENT_HOME}}/pid" | xargs kill -9
-#   when:  _result.status == 200
-#   ignore_errors: yes
-
-
 - name: "Create ELK stack root directory if it does not exist"
   become: yes
   become_user: root
@@ -76,14 +57,6 @@
     path: "{{ DEPLOYMENT_HOME }}/{{DEPLOYMENT}}.tar.gz"
     state: absent
 
-- name: rename current "{{DEPLOYMENT}}".yml 
-  become: yes
-  become_user: ubuntu
-  ansible.builtin.copy:
-    src: "{{DEPLOYMENT_HOME}}/config/{{DEPLOYMENT}}.yml"
-    dest: "{{DEPLOYMENT_HOME}}/config/{{DEPLOYMENT}}.yml.ori"
-    remote_src: yes
-
 - name: Create {{DEPLOYMENT}} Keystore
   become: yes
   become_user: ubuntu
@@ -106,6 +79,13 @@
   args:
     stdin: "{{ES_PWD}}"
 
+- name: Copy custom {{DEPLOYMENT}} log4j
+  become: yes
+  become_user: ubuntu
+  ansible.builtin.template:
+    src: files/log4j2.properties
+    dest: "{{ DEPLOYMENT_HOME }}/config/log4j2.properties"
+    mode: '0644'
 
 - name: Copy custom {{DEPLOYMENT}} yml
   become: yes
@@ -114,6 +94,23 @@
     src: files/{{DEPLOYMENT}}.yml
     dest: "{{ DEPLOYMENT_HOME }}/config/{{ DEPLOYMENT}}.yml"
     mode: '0644'
+
+- name: Copy custom {{DEPLOYMENT}} pipeline yml
+  become: yes
+  become_user: ubuntu
+  ansible.builtin.template:
+    src: files/pipelines.yml
+    dest: "{{ DEPLOYMENT_HOME }}/config/pipelines.yml"
+    mode: '0644'
+
+
+- name: Copy pipelines config for {{DEPLOYMENT}}
+  become: yes
+  become_user: ubuntu
+  ansible.builtin.copy:
+    src: files/conf.d
+    dest: "{{ DEPLOYMENT_HOME }}"
+    mode: '0755'
 
 
 - name: Copy start script for {{DEPLOYMENT}}
@@ -133,21 +130,6 @@
     dest: "{{ DEPLOYMENT_HOME }}/config/ca.crt"
     mode: '0750'
 
-- name: Copy key File 
-  become: yes
-  become_user: ubuntu
-  ansible.builtin.template:
-    src: files/es01.key
-    dest: "{{ DEPLOYMENT_HOME }}/config/es01.key"
-    mode: '0750'
-
-- name: Copy cert File 
-  become: yes
-  become_user: ubuntu
-  ansible.builtin.template:
-    src: files/es01.crt
-    dest: "{{ DEPLOYMENT_HOME }}/config/es01.crt"
-    mode: '0750'
 
 
 - name: Start {{DEPLOYMENT}}
@@ -155,18 +137,3 @@
   become_user: ubuntu
   shell: nohup {{ DEPLOYMENT_HOME }}/start.sh
  
-
-- name: check if the {{DEPLOYMENT}} came up 
-  uri:
-    url: "http://localhost:5601"
-    user: elastic
-    password: "{{ES_PWD}}"
-    follow_redirects: safe
-    method: GET
-  register: _result
-  until: _result.status == 200
-  retries: 12 # 12 * 5 seconds = 1min 
-  delay: 5 # Every 5 seconds
-
-
-

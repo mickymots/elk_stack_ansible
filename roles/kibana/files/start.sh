@@ -1,1 +1,1 @@
-nohup /opt/elk/kibana/bin/kibana  -p pid </dev/null >/dev/null 2>&1 &
+{{ DEPLOYMENT_HOME }}/bin/kibana  &

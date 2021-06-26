@@ -1,0 +1,6 @@
+
+- pipeline.id: first-pipeline
+  path.config: "{{DEPLOYMENT_HOME}}/conf.d/first_pipeline.conf"
+  queue.type: persisted
+
+
