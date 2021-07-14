@@ -11,6 +11,7 @@ elasticsearch.ssl:
 
 
 server.ssl:
+  enabled: true
   certificate: "{{DEPLOYMENT_HOME}}/config/es01.crt"
   key: "{{DEPLOYMENT_HOME}}/config/es01.key"
   certificateAuthorities: "{{DEPLOYMENT_HOME}}/config/ca.crt"

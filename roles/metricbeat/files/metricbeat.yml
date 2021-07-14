@@ -94,7 +94,7 @@ output.elasticsearch:
 
 # Setup In-built Kibana Dashboards for Metricbeat
 
-setup.kibana.host:  ["https://localhost:5601"]
+setup.kibana.host:  "https://localhost:5601"
 setup.kibana.ssl.enabled: true
 setup.kibana.ssl.certificate_authorities: "ca.crt"
 setup.dashboards.enabled: true

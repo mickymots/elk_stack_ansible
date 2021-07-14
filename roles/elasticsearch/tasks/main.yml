@@ -17,6 +17,8 @@
 - name: Install, Configure and Start the {{DEPLOYMENT}} Service
   block:
     - name: "Create ELK stack root directory if it does not exist"
+      become: yes
+      become_user: root
       import_tasks: install.yml
 
   # rescue:

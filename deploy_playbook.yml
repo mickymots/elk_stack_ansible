@@ -6,6 +6,6 @@
   become: yes
   vars:
     ELK_VERSION: 7.13.2
-  # connection: local
+  connection: local
   roles:
     - role: "{{role}}"

@@ -3,12 +3,12 @@ path:
     logs: /var/log/elasticsearch
 
 
-cluster.name: poc-cluster
+cluster.name: elastic-cluster
 
-node.name: poc-node
+node.name: main-node
 network.host: 0.0.0.0
 
-cluster.initial_master_nodes: poc-node
+cluster.initial_master_nodes: main-node
 
 
 
