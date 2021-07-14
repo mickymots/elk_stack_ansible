@@ -1,14 +1,19 @@
 # name of the deployment - referred in the playbook
 DEPLOYMENT: elasticsearch
 
-
+DATA_DIR: elastic_data
 #ELk Stack root deployment directory
 ES_HOME: /opt/elk
 
 
-#filebeat root deployment directory
+#elastic root deployment directory
 DEPLOYMENT_HOME: "{{ ES_HOME }}/{{ DEPLOYMENT}}"
 
+#elasticsearch data directory
+DEPLOYMENT_DATA_DIR: "{{ ES_HOME }}/{{DATA_DIR}}"
+
+#elasticsearch log directory
+DEPLOYMENT_LOG_DIR: "{{ ES_HOME }}/{{DEPLOYMENT}}/logs"
 
 # Backup Directory
 BACKUP_HOME: "{{ES_HOME}}/backup"

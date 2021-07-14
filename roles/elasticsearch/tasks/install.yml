@@ -34,8 +34,6 @@
     state: absent
 
 - name: "Create {{ DEPLOYMENT }} directory if it does not exist"
-  # become: yes
-  # become_user: amit
   ansible.builtin.file:
     path: "{{ DEPLOYMENT_HOME }}"
     state: directory
@@ -43,9 +41,17 @@
     owner: ubuntu
     mode: '0755'
 
+- name: "Create {{ DEPLOYMENT }} data directory if it does not exist"
+  ansible.builtin.file:
+    path: "{{ DEPLOYMENT_DATA_DIR }}"
+    state: directory
+    group: ubuntu
+    owner: ubuntu
+    mode: '0755'
+
+
+
 - name: "Create {{ DEPLOYMENT }} log directory if it does not exist"
-  # become: yes
-  # become_user: root
   ansible.builtin.file:
     path: "/var/log/{{ DEPLOYMENT }}"
     state: directory
@@ -54,8 +60,6 @@
     mode: '0755'
 
 - name: Download {{ DEPLOYMENT }} installation archive
-  # become: yes
-  # become_user: amit
   get_url:
     url: "{{ DEPLOYMENT_ARTIFACT }}"
     dest: "{{ DEPLOYMENT_HOME }}/{{DEPLOYMENT}}.tar.gz"

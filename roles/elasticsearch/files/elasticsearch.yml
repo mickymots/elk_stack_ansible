@@ -1,6 +1,6 @@
 path:
-    data: /home/ubuntu/elasticsearch/data
-    logs: /var/log/elasticsearch
+    data: "{{DEPLOYMENT_DATA_DIR}}"
+    logs: "{{DEPLOYMENT_LOG_DIR}}"
 
 
 cluster.name: elastic-cluster

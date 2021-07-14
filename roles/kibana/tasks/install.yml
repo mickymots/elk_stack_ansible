@@ -116,14 +116,6 @@
     mode: '0644'
 
 
-- name: Copy start script for {{DEPLOYMENT}}
-  become: yes
-  become_user: ubuntu
-  ansible.builtin.template:
-    src: files/start.sh
-    dest: "{{ DEPLOYMENT_HOME }}/start.sh"
-    mode: '0755'
-
 
 - name: Copy CA File 
   become: yes
@@ -137,24 +129,27 @@
   become: yes
   become_user: ubuntu
   ansible.builtin.template:
-    src: files/elastic.key
-    dest: "{{ DEPLOYMENT_HOME }}/config/elastic.key"
+    src: files/kibana.key
+    dest: "{{ DEPLOYMENT_HOME }}/config/kibana.key"
     mode: '0750'
 
 - name: Copy cert File 
   become: yes
   become_user: ubuntu
   ansible.builtin.template:
-    src: files/elastic.crt
-    dest: "{{ DEPLOYMENT_HOME }}/config/elastic.crt"
+    src: files/kibana.crt
+    dest: "{{ DEPLOYMENT_HOME }}/config/kibana.crt"
     mode: '0750'
 
 
 - name: Start {{DEPLOYMENT}}
   become: yes
   become_user: ubuntu
-  shell: nohup {{ DEPLOYMENT_HOME }}/start.sh
+  shell: nohup ./{{DEPLOYMENT}} </dev/null >/dev/null 2>&1 &
+  args:
+    chdir: "{{ DEPLOYMENT_HOME }}/bin" 
  
+
 
 - name: check if the {{DEPLOYMENT}} came up 
   uri:
@@ -165,9 +160,9 @@
     method: GET
     validate_certs: no
   register: _result
-  until: _result.status == 201
-  retries: 12 # 12 * 5 seconds = 1min 
-  delay: 5 # Every 5 seconds
+  until: _result.status == 200
+  retries: 20 # 12 * 5 seconds = 1min 
+  delay: 3 # Every 5 seconds
 
 
 
