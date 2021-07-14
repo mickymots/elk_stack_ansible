@@ -133,16 +133,16 @@
   become: yes
   become_user: ubuntu
   ansible.builtin.template:
-    src: files/es01.key
-    dest: "{{ DEPLOYMENT_HOME }}/config/es01.key"
+    src: files/elastic.key
+    dest: "{{ DEPLOYMENT_HOME }}/config/elastic.key"
     mode: '0750'
 
 - name: Copy cert File 
   become: yes
   become_user: ubuntu
   ansible.builtin.template:
-    src: files/es01.crt
-    dest: "{{ DEPLOYMENT_HOME }}/config/es01.crt"
+    src: files/elastic.crt
+    dest: "{{ DEPLOYMENT_HOME }}/config/elastic.crt"
     mode: '0750'
 
 

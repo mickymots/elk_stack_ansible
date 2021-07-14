@@ -18,13 +18,13 @@ xpack:
     enabled: true
     transport.ssl:
       enabled: true
-      key: es01.key
-      certificate: es01.crt
+      key: elastic.key
+      certificate: elastic.crt
       certificate_authorities: ca.crt
       verification_mode: certificate
     http.ssl:
       enabled: true
-      key: es01.key
-      certificate: es01.crt
+      key: elastic.key
+      certificate: elastic.crt
       certificate_authorities: ca.crt
       verification_mode: certificate
